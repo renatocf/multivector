@@ -2,3 +2,7 @@
 	path = make
 	url = https://github.com/umake/make.git
 	ignore = dirty
+[submodule "external/gtest"]
+	path = external/gtest
+	url = https://github.com/google/googletest.git
+	ignore = dirty
