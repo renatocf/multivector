@@ -252,7 +252,7 @@ class View {
     assert(check_constraints());
   }
 
-  // Operator overloads
+  // Attribution operators
   const View& operator=(value_type value) const & {
     assert(ranges_.size() == 0);
     auto offset = container_.buffer_offset(indices_);
@@ -274,6 +274,117 @@ class View {
     return std::move(*this);
   }
 
+  // Sum operators
+  const View& operator+=(value_type value) const & {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) += value;
+    return *this;
+  }
+
+  View& operator+=(value_type value) & {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) += value;
+    return *this;
+  }
+
+  View&& operator+=(value_type value) && {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) += value;
+    return std::move(*this);
+  }
+
+  // Subtraction operators
+  const View& operator-=(value_type value) const & {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) -= value;
+    return *this;
+  }
+
+  View& operator-=(value_type value) & {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) -= value;
+    return *this;
+  }
+
+  View&& operator-=(value_type value) && {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) -= value;
+    return std::move(*this);
+  }
+
+  // Multiplication operators
+  const View& operator*=(value_type value) const & {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) *= value;
+    return *this;
+  }
+
+  View& operator*=(value_type value) & {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) *= value;
+    return *this;
+  }
+
+  View&& operator*=(value_type value) && {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) *= value;
+    return std::move(*this);
+  }
+
+  // Division operators
+  const View& operator/=(value_type value) const & {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) /= value;
+    return *this;
+  }
+
+  View& operator/=(value_type value) & {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) /= value;
+    return *this;
+  }
+
+  View&& operator/=(value_type value) && {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) /= value;
+    return std::move(*this);
+  }
+
+  // Remainder operators
+  const View& operator%=(value_type value) const & {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) %= value;
+    return *this;
+  }
+
+  View& operator%=(value_type value) & {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) %= value;
+    return *this;
+  }
+
+  View&& operator%=(value_type value) && {
+    assert(ranges_.size() == 0);
+    auto offset = container_.buffer_offset(indices_);
+    container_.buffer_value(offset) %= value;
+    return std::move(*this);
+  }
+
+  // Type cast operators
   operator const value_type&() const & {
     assert(ranges_.size() == 0);
     auto offset = container_.buffer_offset(indices_);
@@ -292,6 +403,7 @@ class View {
     return std::move(container_.buffer_value(offset));
   }
 
+  // Element access operators
   const View operator[](std::vector<size_type> indices) const & {
     assert(check_num_indices(indices));
 
@@ -359,6 +471,7 @@ class View {
     return std::move(*this);
   }
 
+  // Comparison operators
   // TODO(renatocf): Use iterator to calculate
   bool operator==(const View& rhs) const {
     if (indices_ != rhs.indices_ || ranges_ != rhs.ranges_) return false;

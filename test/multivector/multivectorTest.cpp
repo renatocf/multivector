@@ -535,14 +535,92 @@ TEST_F(ACubeMultiVector, AllowsChangingItsFieldsByBufferOffset) {
 
 /*----------------------------------------------------------------------------*/
 
+TEST_F(ACubeMultiVector, AllowsSummingToItsFieldsByBufferOffset) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        std::vector<size_t> indices { i, j, k };
+        auto offset = cube.buffer_offset(indices);
+        cube.buffer_value(offset) += 42;
+        EXPECT_THAT(cube.buffer_value(offset), Eq(42));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsSubtractingToItsFieldsByBufferOffset) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        std::vector<size_t> indices { i, j, k };
+        auto offset = cube.buffer_offset(indices);
+        cube.buffer_value(offset) -= 42;
+        EXPECT_THAT(cube.buffer_value(offset), Eq(-42));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsMultiplyingItsFieldsByBufferOffset) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        std::vector<size_t> indices { i, j, k };
+        auto offset = cube.buffer_offset(indices);
+        cube.buffer_value(offset) = 1;
+        cube.buffer_value(offset) *= 42;
+        EXPECT_THAT(cube.buffer_value(offset), Eq(42));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsDividingItsFieldsByBufferOffset) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        std::vector<size_t> indices { i, j, k };
+        auto offset = cube.buffer_offset(indices);
+        cube.buffer_value(offset) = 42;
+        cube.buffer_value(offset) /= 42;
+        EXPECT_THAT(cube.buffer_value(offset), Eq(1));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsGettingRemainderOfItsFieldsByBufferOffset) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        std::vector<size_t> indices { i, j, k };
+        auto offset = cube.buffer_offset(indices);
+        cube.buffer_value(offset) = 42;
+        cube.buffer_value(offset) %= 42;
+        EXPECT_THAT(cube.buffer_value(offset), Eq(0));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
 TEST_F(ACubeMultiVector, DiesIfAccessingBufferOffsetOutOfBound) {
   std::vector<size_t> indices {
     cube.dimension_size(0), cube.dimension_size(1), cube.dimension_size(2) };
 
-  auto offset = std::accumulate(
+  auto invalid_offset = std::accumulate(
       std::begin(indices), std::end(indices), 1, std::multiplies<>());
 
-  EXPECT_DEATH(cube.buffer_value(offset) = 42, "check_offset");
+  EXPECT_DEATH(cube.buffer_value(invalid_offset), "check_offset");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -551,10 +629,58 @@ TEST_F(ACubeMultiVector, DiesIfChangingBufferOffsetOutOfBound) {
   std::vector<size_t> indices {
     cube.dimension_size(0), cube.dimension_size(1), cube.dimension_size(2) };
 
-  auto offset = std::accumulate(
+  auto invalid_offset = std::accumulate(
       std::begin(indices), std::end(indices), 1, std::multiplies<>());
 
-  EXPECT_DEATH(cube.buffer_value(offset), "check_offset");
+  EXPECT_DEATH(cube.buffer_value(invalid_offset) = 42, "check_offset");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, DiesIfSummingToBufferOffsetOutOfBound) {
+  std::vector<size_t> indices {
+    cube.dimension_size(0), cube.dimension_size(1), cube.dimension_size(2) };
+
+  auto invalid_offset = std::accumulate(
+      std::begin(indices), std::end(indices), 1, std::multiplies<>());
+
+  EXPECT_DEATH(cube.buffer_value(invalid_offset) += 42, "check_offset");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, DiesIfSubtractingToBufferOffsetOutOfBound) {
+  std::vector<size_t> indices {
+    cube.dimension_size(0), cube.dimension_size(1), cube.dimension_size(2) };
+
+  auto invalid_offset = std::accumulate(
+      std::begin(indices), std::end(indices), 1, std::multiplies<>());
+
+  EXPECT_DEATH(cube.buffer_value(invalid_offset) -= 42, "check_offset");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, DiesIfMultiplyingBufferOffsetOutOfBound) {
+  std::vector<size_t> indices {
+    cube.dimension_size(0), cube.dimension_size(1), cube.dimension_size(2) };
+
+  auto invalid_offset = std::accumulate(
+      std::begin(indices), std::end(indices), 1, std::multiplies<>());
+
+  EXPECT_DEATH(cube.buffer_value(invalid_offset) *= 42, "check_offset");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, DiesIfDividingBufferOffsetOutOfBound) {
+  std::vector<size_t> indices {
+    cube.dimension_size(0), cube.dimension_size(1), cube.dimension_size(2) };
+
+  auto invalid_offset = std::accumulate(
+      std::begin(indices), std::end(indices), 1, std::multiplies<>());
+
+  EXPECT_DEATH(cube.buffer_value(invalid_offset) /= 42, "check_offset");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -659,10 +785,123 @@ TEST_F(ACubeMultiVector, AllowsChangingItsFieldsByJointIndices) {
 
 /*----------------------------------------------------------------------------*/
 
+TEST_F(ACubeMultiVector, AllowsSummingToItsFieldsByJointIndices) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        std::vector<size_t> indices { i, j, k };
+        cube[indices] += 42;
+        EXPECT_THAT(cube[indices], Eq(42));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsSubtractingToItsFieldsByJointIndices) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        std::vector<size_t> indices { i, j, k };
+        cube[indices] -= 42;
+        EXPECT_THAT(cube[indices], Eq(-42));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsMultiplyingItsFieldsByJointIndices) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        std::vector<size_t> indices { i, j, k };
+        cube[indices] = 1;
+        cube[indices] *= i*9 + j*3 + k;
+        EXPECT_THAT(cube[indices], Eq(i*9 + j*3 + k));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsDividingItsFieldsByJointIndices) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        std::vector<size_t> indices { i, j, k };
+        cube[indices] = 42;
+        cube[indices] /= 42;
+        EXPECT_THAT(cube[indices], Eq(1));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsGettingRemainderOfItsFieldsByJointIndices) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        std::vector<size_t> indices { i, j, k };
+        cube[indices] = 42;
+        cube[indices] %= 42;
+        EXPECT_THAT(cube[indices], Eq(0));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
 TEST_F(ACubeMultiVector,
        DiesChangingIndexOutOfBoundInFirstDimensionWithJointIndices) {
   std::vector<size_t> indices { 4, 0, 0 };
   EXPECT_DEATH(cube[indices] = 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesSummingToIndexOutOfBoundInFirstDimensionWithJointIndices) {
+  std::vector<size_t> indices { 4, 0, 0 };
+  EXPECT_DEATH(cube[indices] += 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesSubtractingToIndexOutOfBoundInFirstDimensionWithJointIndices) {
+  std::vector<size_t> indices { 4, 0, 0 };
+  EXPECT_DEATH(cube[indices] -= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesMultiplyingIndexOutOfBoundInFirstDimensionWithJointIndices) {
+  std::vector<size_t> indices { 4, 0, 0 };
+  EXPECT_DEATH(cube[indices] *= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesDividingIndexOutOfBoundInFirstDimensionWithJointIndices) {
+  std::vector<size_t> indices { 4, 0, 0 };
+  EXPECT_DEATH(cube[indices] /= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesGettingRemainderOfIndexOutOfBoundInFirstDimensionWithJointIndices) {
+  std::vector<size_t> indices { 4, 0, 0 };
+  EXPECT_DEATH(cube[indices] %= 42, "check_indices");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -676,9 +915,89 @@ TEST_F(ACubeMultiVector,
 /*----------------------------------------------------------------------------*/
 
 TEST_F(ACubeMultiVector,
+       DiesSummingIndexOutOfBoundInSecondDimensionWithJointIndices) {
+  std::vector<size_t> indices { 0, 4, 0 };
+  EXPECT_DEATH(cube[indices] += 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesSubtractingIndexOutOfBoundInSecondDimensionWithJointIndices) {
+  std::vector<size_t> indices { 0, 4, 0 };
+  EXPECT_DEATH(cube[indices] -= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesMultiplyingIndexOutOfBoundInSecondDimensionWithJointIndices) {
+  std::vector<size_t> indices { 0, 4, 0 };
+  EXPECT_DEATH(cube[indices] *= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesDividingIndexOutOfBoundInSecondDimensionWithJointIndices) {
+  std::vector<size_t> indices { 0, 4, 0 };
+  EXPECT_DEATH(cube[indices] /= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesGettingRemainderOfIndexOutOfBoundInSecondDimensionWithJointIndices) {
+  std::vector<size_t> indices { 0, 4, 0 };
+  EXPECT_DEATH(cube[indices] %= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
        DiesChangingIndexOutOfBoundInThirdDimensionWithJointIndices) {
   std::vector<size_t> indices { 0, 0, 4 };
   EXPECT_DEATH(cube[indices] = 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesSummingIndexOutOfBoundInThirdDimensionWithJointIndices) {
+  std::vector<size_t> indices { 0, 0, 4 };
+  EXPECT_DEATH(cube[indices] += 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesSubtractingIndexOutOfBoundInThirdDimensionWithJointIndices) {
+  std::vector<size_t> indices { 0, 0, 4 };
+  EXPECT_DEATH(cube[indices] -= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesMultiplyingIndexOutOfBoundInThirdDimensionWithJointIndices) {
+  std::vector<size_t> indices { 0, 0, 4 };
+  EXPECT_DEATH(cube[indices] *= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesDividingIndexOutOfBoundInThirdDimensionWithJointIndices) {
+  std::vector<size_t> indices { 0, 0, 4 };
+  EXPECT_DEATH(cube[indices] /= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesGettingRemainderOfIndexOutOfBoundInThirdDimensionWithJointIndices) {
+  std::vector<size_t> indices { 0, 0, 4 };
+  EXPECT_DEATH(cube[indices] %= 42, "check_indices");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -696,6 +1015,73 @@ TEST_F(ACubeMultiVector, AllowsAccessingFieldsBySeparatedIndices) {
 /*----------------------------------------------------------------------------*/
 
 TEST_F(ACubeMultiVector, AllowsChangingItsFieldsBySeparatedIndices) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        cube[i][j][k] = i*9 + j*3 + k;
+        EXPECT_THAT(cube[i][j][k], Eq(i*9 + j*3 + k));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsSummingToItsFieldsBySeparatedIndices) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        cube[i][j][k] += 42;
+        EXPECT_THAT(cube[i][j][k], Eq(42));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsSubtractingToItsFieldsBySeparatedIndices) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        cube[i][j][k] -= 42;
+        EXPECT_THAT(cube[i][j][k], Eq(-42));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsMultiplyingItsFieldsBySeparatedIndices) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        cube[i][j][k] = 1;
+        cube[i][j][k] *= 42;
+        EXPECT_THAT(cube[i][j][k], Eq(42));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsDividingItsFieldsBySeparatedIndices) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      for (size_t k = 0; k < 3; k++) {
+        cube[i][j][k] = 42;
+        cube[i][j][k] /= 42;
+        EXPECT_THAT(cube[i][j][k], Eq(1));
+      }
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector, AllowsGettingRemainderOfItsFieldsBySeparatedIndices) {
   for (size_t i = 0; i < 3; i++) {
     for (size_t j = 0; j < 3; j++) {
       for (size_t k = 0; k < 3; k++) {
@@ -737,6 +1123,41 @@ TEST_F(ACubeMultiVector,
 /*----------------------------------------------------------------------------*/
 
 TEST_F(ACubeMultiVector,
+       DiesSummingToIndexOutOfBoundInFirstDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[4][0][0] += 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesSubtractingToIndexOutOfBoundInFirstDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[4][0][0] -= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesMultiplyingIndexOutOfBoundInFirstDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[4][0][0] *= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesDividingIndexOutOfBoundInFirstDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[4][0][0] /= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+    DiesGettingRemainderOfIndexOutOfBoundInFirstDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[4][0][0] %= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
        DiesChangingIndexOutOfBoundInSecondDimensionWithSeparatedIndices) {
   EXPECT_DEATH(cube[0][4][0] = 42, "check_indices");
 }
@@ -744,8 +1165,78 @@ TEST_F(ACubeMultiVector,
 /*----------------------------------------------------------------------------*/
 
 TEST_F(ACubeMultiVector,
+       DiesSummingToIndexOutOfBoundInSecondDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[0][4][0] += 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesSubtractingToIndexOutOfBoundInSecondDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[0][4][0] -= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesMultiplyingIndexOutOfBoundInSecondDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[0][4][0] *= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesDividingIndexOutOfBoundInSecondDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[0][4][0] /= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+  DiesGettingRemainderOfIndexOutOfBoundInSecondDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[0][4][0] %= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
        DiesChangingIndexOutOfBoundInThirdDimensionWithSeparatedIndices) {
   EXPECT_DEATH(cube[0][0][4] = 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesSummingToIndexOutOfBoundInThirdDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[0][0][4] += 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesSubtractingToIndexOutOfBoundInThirdDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[0][0][4] -= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesMultiplyingIndexOutOfBoundInThirdDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[0][0][4] *= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+       DiesDividingIndexOutOfBoundInThirdDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[0][0][4] /= 42, "check_indices");
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(ACubeMultiVector,
+  DiesGettingRemainderOfIndexOutOfBoundInThirdDimensionWithSeparatedIndices) {
+  EXPECT_DEATH(cube[0][0][4] %= 42, "check_indices");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1516,6 +2007,44 @@ TEST_F(APointView, AllowsConvertingToValue) {
 TEST_F(APointView, AllowsChangingValue) {
   point_view = 42;
   EXPECT_THAT(point_view, Eq(42));
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(APointView, AllowsSummingToValue) {
+  point_view += 42;
+  EXPECT_THAT(point_view, Eq(42));
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(APointView, AllowsSubtractingToValue) {
+  point_view -= 42;
+  EXPECT_THAT(point_view, Eq(-42));
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(APointView, AllowsMultiplyingValue) {
+  point_view = 1;
+  point_view *= 42;
+  EXPECT_THAT(point_view, Eq(42));
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(APointView, AllowsDividingValue) {
+  point_view = 42;
+  point_view /= 42;
+  EXPECT_THAT(point_view, Eq(1));
+}
+
+/*----------------------------------------------------------------------------*/
+
+TEST_F(APointView, AllowsGettingRemainderOfValue) {
+  point_view = 42;
+  point_view %= 42;
+  EXPECT_THAT(point_view, Eq(0));
 }
 
 /*----------------------------------------------------------------------------*/
